@@ -6,7 +6,6 @@ const API_KEY = process.env.GEMINI_API_KEY;
 if (!API_KEY) {
   throw new Error("GEMINI_API_KEY is missing from environment variables. Please add it to .env.local");
 }
-
 let genAI: GoogleGenerativeAI;
 let model: any;
 

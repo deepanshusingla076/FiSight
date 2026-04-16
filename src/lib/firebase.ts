@@ -1,5 +1,5 @@
 // Firebase configuration - the backbone of our auth system 🔥
-import { initializeApp } from 'firebase/app'
+import { initializeApp, getApp, getApps } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
@@ -13,8 +13,8 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 }
 
-// Initialize Firebase (this is where the magic begins ✨)
-const app = initializeApp(firebaseConfig)
+// Initialize Firebase (safely for Next.js hot reloading ✨)
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp()
 
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app)
