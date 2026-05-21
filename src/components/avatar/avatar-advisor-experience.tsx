@@ -51,7 +51,7 @@ export function AvatarAdvisorExperience({ immersive = false }: AvatarAdvisorExpe
             <Link href="/profile" className="font-medium underline">
               Profile
             </Link>
-            . Aria uses your data—not demo numbers.
+            . Sophia uses your data—not demo numbers.
           </AlertDescription>
         </Alert>
       )}
@@ -179,3 +179,4 @@ export function AvatarAdvisorExperience({ immersive = false }: AvatarAdvisorExpe
     </div>
   );
 }
+

@@ -72,9 +72,7 @@ export function LandingHeader() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Button asChild variant="outline">
-              <Link href="/login">{t('nav.signIn')}</Link>
-            </Button>
+
             <Button asChild>
               <Link href="/login">{t('nav.getStarted')}</Link>
             </Button>

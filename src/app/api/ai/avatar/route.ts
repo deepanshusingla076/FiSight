@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     const answer = await askGemini(
       prompt,
-      `Respond as Aria, a professional financial advisor. Use the user's real numbers below.\n\n${mlContext}`
+      `Respond as Sophia, a professional financial advisor. Use the user's real numbers below.\n\n${mlContext}`
     );
 
     const emotion =

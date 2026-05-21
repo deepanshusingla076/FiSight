@@ -33,7 +33,7 @@ export function useAvatarAdvisor() {
       id: 'welcome',
       role: 'advisor',
       content:
-        "Hello! I'm Aria, your FiSight financial advisor. Ask me about affordability, EMIs, investments, or savings—I'll explain with voice and live charts.",
+        "Hello! I'm Sophia, your FiSight financial advisor. Ask me about affordability, EMIs, investments, or savings—I'll explain with voice and live charts.",
       emotion: 'calm',
     },
   ]);

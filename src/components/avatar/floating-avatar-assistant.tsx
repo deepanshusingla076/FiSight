@@ -40,7 +40,7 @@ export function FloatingAvatarAssistant() {
             <div className="flex items-center justify-between gap-3">
               <SheetTitle className="flex items-center gap-2 font-headline text-base">
                 <Bot className="h-5 w-5 text-primary" />
-                Aria · Financial Advisor
+                  Sophia Sterling · Financial Advisor
               </SheetTitle>
               <div className="flex shrink-0 items-center gap-2">
                 <Button variant="outline" size="sm" asChild>

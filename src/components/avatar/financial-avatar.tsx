@@ -160,7 +160,7 @@ export function FinancialAvatar({ state, mouthOpen, className, compact }: Financ
 
       {!compact && (
         <div className="mt-4 flex flex-col items-center gap-1">
-          <p className="font-headline text-sm font-semibold text-foreground">Aria Chen</p>
+          <p className="font-headline text-sm font-semibold text-foreground">Sophia Sterling</p>
           <p className="text-xs text-muted-foreground">CFP® · AI Financial Advisor</p>
           <span
             className={cn(
