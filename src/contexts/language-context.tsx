@@ -16,6 +16,9 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const translations = {
   en: {
     // landing page stuff
+    'hero.titlePrefix': 'Navigate Your Financial Future with ',
+    'hero.titleHighlight': 'AI-Powered Clarity',
+    'hero.titleSuffix': '',
     'hero.title': 'Navigate Your Financial Future with AI-Powered Clarity',
     'hero.subtitle': 'FiSight combines cutting-edge AI with your financial data to provide actionable insights, helping you make smarter decisions and achieve your goals faster.',
     'hero.dashboard': 'Explore Your Dashboard',
@@ -81,6 +84,9 @@ const translations = {
     
     // Navigation & Buttons
     'nav.getStarted': 'Get Started',
+    'nav.signIn': 'Sign in',
+    'nav.features': 'Features',
+    'nav.pricing': 'Pricing',
     'nav.contact': 'Contact',
     
     // Chat Bot
@@ -99,6 +105,9 @@ const translations = {
   },
   hi: {
     // Landing Page
+    'hero.titlePrefix': 'अपने वित्तीय भविष्य को ',
+    'hero.titleHighlight': 'AI की शक्ति',
+    'hero.titleSuffix': ' से संवारें',
     'hero.title': 'अपने वित्तीय भविष्य को AI की शक्ति से संवारें',
     'hero.subtitle': 'FiSight आपके वित्तीय डेटा को अत्याधुनिक AI तकनीक के साथ जोड़कर व्यावहारिक सुझाव देता है, जो आपको बेहतर निर्णय लेने और अपने लक्ष्यों को तेज़ी से हासिल करने में मदद करता है।',
     'hero.dashboard': 'अपना डैशबोर्ड देखें',
@@ -164,6 +173,9 @@ const translations = {
     
     // Navigation & Buttons
     'nav.getStarted': 'शुरू करें',
+    'nav.signIn': 'साइन इन',
+    'nav.features': 'फीचर्स',
+    'nav.pricing': 'मूल्य',
     'nav.contact': 'संपर्क',
     
     // Chat Bot

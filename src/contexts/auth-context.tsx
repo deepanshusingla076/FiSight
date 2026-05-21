@@ -14,6 +14,7 @@ import {
   sendPasswordResetEmail
 } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
+import { setAuthCookie } from '@/lib/auth-cookie'
 
 interface AuthContextType {
   user: User | null
@@ -21,7 +22,7 @@ interface AuthContextType {
   isNewUser: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, displayName?: string) => Promise<void>
-  signInWithGoogle: () => Promise<void>
+  signInWithGoogle: () => Promise<boolean>
   resetPassword: (email: string) => Promise<void>
   logout: () => Promise<void>
   clearNewUserFlag: () => void
@@ -73,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Google sign in - one click magic ⚡
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (): Promise<boolean> => {
     try {
       const provider = new GoogleAuthProvider()
       const result = await signInWithPopup(auth, provider)
@@ -87,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (isFirstTimeUser) {
         setIsNewUser(true)
       }
+      return isFirstTimeUser
     } catch (error) {
       console.error('Google sign in error:', error)
       throw error
@@ -123,6 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user)
+      setAuthCookie(!!user)
       setLoading(false)
     })
 

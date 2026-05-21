@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { simulateFinancialScenario, type SimulateFinancialScenarioOutput } from '@/ai/flows/simulate-financial-scenarios';
-import { mockCurrentFinancialSituation } from '@/lib/mock-data';
+import { useProfile, profileToFinancialSituation } from '@/hooks/use-profile';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -18,6 +18,7 @@ const formSchema = z.object({
 });
 
 export function ScenarioSimulator() {
+  const { profile } = useProfile();
   const [result, setResult] = useState<SimulateFinancialScenarioOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -37,7 +38,7 @@ export function ScenarioSimulator() {
     try {
       const response = await simulateFinancialScenario({
         ...values,
-        currentFinancialSituation: mockCurrentFinancialSituation,
+        currentFinancialSituation: profileToFinancialSituation(profile),
       });
       setResult(response);
     } catch (e) {

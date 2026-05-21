@@ -15,7 +15,7 @@ import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export function AuthForm() {
   const router = useRouter();
-  const { signIn, signUp, signInWithGoogle, resetPassword, isNewUser } = useAuth();
+  const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -74,9 +74,8 @@ export function AuthForm() {
 
     try {
       await signUp(email, password, name);
-      // After successful signup, send welcome email
       await sendWelcomeEmail(email, name);
-      router.push('/settings?welcome=true');
+      router.push('/profile?onboarding=true');
     } catch (error: any) {
       setError(error.message || 'Failed to create account');
     } finally {
@@ -110,8 +109,8 @@ export function AuthForm() {
     setSuccess('');
 
     try {
-      await signInWithGoogle();
-      router.push(isNewUser ? '/settings?welcome=true' : '/dashboard');
+      const isFirstTime = await signInWithGoogle();
+      router.push(isFirstTime ? '/profile?onboarding=true' : '/dashboard');
     } catch (error: any) {
       setError(error.message || 'Failed to sign in with Google');
     } finally {

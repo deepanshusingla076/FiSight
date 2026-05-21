@@ -14,10 +14,11 @@ export function LandingHeader() {
   const { t } = useLanguage();
   
   const navLinks = [
-    { href: '#services', label: t('footer.services') },
-    { href: '#about', label: t('footer.about') },
-    { href: '#faq', label: t('footer.faq') },
-    { href: '#contact', label: t('nav.contact') },
+    { href: '/features', label: t('nav.features') },
+    { href: '/pricing', label: t('nav.pricing') },
+    { href: '/about', label: t('footer.about') },
+    { href: '/#faq', label: t('footer.faq') },
+    { href: '/#contact', label: t('nav.contact') },
   ];
 
   return (
@@ -71,8 +72,11 @@ export function LandingHeader() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
+            <Button asChild variant="outline">
+              <Link href="/login">{t('nav.signIn')}</Link>
+            </Button>
             <Button asChild>
-              <Link href="/login" target="_blank" rel="noopener noreferrer">{t('nav.getStarted')}</Link>
+              <Link href="/login">{t('nav.getStarted')}</Link>
             </Button>
           </motion.div>
         </motion.div>
@@ -105,7 +109,7 @@ export function LandingHeader() {
                   ))}
                 </nav>
                 <Button asChild>
-                  <Link href="/login" target="_blank" rel="noopener noreferrer">{t('nav.getStarted')}</Link>
+                  <Link href="/login">{t('nav.getStarted')}</Link>
                 </Button>
               </div>
             </SheetContent>

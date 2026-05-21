@@ -12,63 +12,64 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { mockNetWorthHistory } from '@/lib/mock-data';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell } from 'recharts';
+import { useProfile } from '@/hooks/use-profile';
+import { getFinancialSnapshot } from '@/lib/profile-derived-data';
 
 const chartConfig = {
-  netWorth: {
-    label: 'Net Worth',
-    color: 'hsl(var(--primary))',
-  },
+  amount: { label: 'Amount', color: 'hsl(var(--primary))' },
 };
 
+const COLORS = ['#34d399', '#60a5fa', '#a78bfa', '#f59e0b', '#94a3b8'];
+
 export function NetWorthCard() {
-  const latestNetWorth = mockNetWorthHistory[mockNetWorthHistory.length - 1].netWorth;
+  const { profile } = useProfile();
+  const snap = getFinancialSnapshot(profile);
+
+  const breakdown = [
+    ...snap.assetItems.map((a) => ({ name: a.name, amount: a.amount, type: 'asset' as const })),
+    ...snap.liabilityItems.map((l) => ({ name: l.name, amount: -l.amount, type: 'debt' as const })),
+  ];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Net Worth</CardTitle>
-        <CardDescription>
-          Your financial snapshot over the last 7 months.
-        </CardDescription>
-        <div className="text-4xl font-bold text-primary pt-2">
-          ${latestNetWorth.toLocaleString()}
+        <CardTitle className="font-headline">Net worth</CardTitle>
+        <CardDescription>Assets minus debt from your saved profile</CardDescription>
+        <div className="pt-2 text-4xl font-bold text-primary">
+          ${snap.netWorth.toLocaleString()}
         </div>
+        <p className="text-sm text-muted-foreground">
+          Assets ${snap.totalAssets.toLocaleString()} · Debt ${snap.totalDebt.toLocaleString()}
+        </p>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[250px] w-full">
-          <AreaChart
-            data={mockNetWorthHistory}
-            margin={{ top: 5, right: 20, left: -10, bottom: 0 }}
-          >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => `$${Number(value) / 1000}k`}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dot" />}
-            />
-            <Area
-              dataKey="netWorth"
-              type="natural"
-              fill="var(--color-netWorth)"
-              fillOpacity={0.4}
-              stroke="var(--color-netWorth)"
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ChartContainer>
+        {breakdown.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            Add asset amounts in Profile to see your breakdown.
+          </p>
+        ) : (
+          <ChartContainer config={chartConfig} className="h-[250px] w-full">
+            <BarChart data={breakdown} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+              <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v) => `$${Math.abs(Number(v)) / 1000}k`}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent formatter={(v) => `$${Math.abs(Number(v)).toLocaleString()}`} />}
+              />
+              <Bar dataKey="amount" radius={[4, 4, 0, 0]} isAnimationActive={false}>
+                {breakdown.map((row, i) => (
+                  <Cell key={i} fill={row.type === 'debt' ? '#f43f5e' : COLORS[i % COLORS.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

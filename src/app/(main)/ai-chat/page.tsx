@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/shared/page-header';
-import { useProfile, profileToFinancialSituation } from '@/hooks/use-profile';
+import { useProfile, profileToFinancialSituation, profileToMlPayload } from '@/hooks/use-profile';
 import { useToast } from '@/hooks/use-toast';
 import { useVoiceAssistant } from '@/hooks/use-voice-assistant';
 
@@ -278,14 +278,40 @@ What specific financial goal or challenge can I help you with today?`;
     setIsLoading(true);
 
     try {
-      const response = await generateFinancialResponse(currentInput);
+      let response: string;
+      const financial = isFinancialQuery(currentInput);
+
+      if (financial) {
+        try {
+          const situation = profileToFinancialSituation(profile);
+          const apiRes = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: currentInput,
+              userContext: situation,
+              profile: profileToMlPayload(profile),
+            }),
+          });
+          if (apiRes.ok) {
+            const data = await apiRes.json();
+            response = data.answer ?? await generateFinancialResponse(currentInput);
+          } else {
+            response = await generateFinancialResponse(currentInput);
+          }
+        } catch {
+          response = await generateFinancialResponse(currentInput);
+        }
+      } else {
+        response = await generateFinancialResponse(currentInput);
+      }
       
       const assistantMessage: Message = { 
         id: Date.now() + 1, 
         role: 'assistant', 
         content: response,
         timestamp: new Date(),
-        type: isFinancialQuery(currentInput) ? 'financial' : 'rejected'
+        type: financial ? 'financial' : 'rejected'
       };
       
       setMessages(prev => [...prev, assistantMessage]);

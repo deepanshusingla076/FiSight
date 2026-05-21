@@ -11,11 +11,13 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { analyzeFinancialTrends, type AnalyzeFinancialTrendsOutput } from '@/ai/flows/analyze-financial-trends';
-import { mockTransactions } from '@/lib/mock-data';
+import { useProfile } from '@/hooks/use-profile';
+import { getFinancialSnapshot } from '@/lib/profile-derived-data';
 import { AIResponseCard } from '../shared/ai-response-card';
 import { Sparkles } from 'lucide-react';
 
 export function FinancialHealthSummary() {
+  const { profile } = useProfile();
   const [analysis, setAnalysis] = useState<AnalyzeFinancialTrendsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -25,7 +27,15 @@ export function FinancialHealthSummary() {
     setError(null);
     setAnalysis(null);
     try {
-      const financialData = JSON.stringify(mockTransactions);
+      const snap = getFinancialSnapshot(profile);
+      const financialData = JSON.stringify({
+        income: profile.annualIncome,
+        monthlyExpenses: profile.monthlyExpenses,
+        assets: snap.assetItems,
+        liabilities: snap.liabilityItems,
+        netWorth: snap.netWorth,
+        savingsRate: snap.savingsRate,
+      });
       const result = await analyzeFinancialTrends({ financialData });
       setAnalysis(result);
     } catch (e) {

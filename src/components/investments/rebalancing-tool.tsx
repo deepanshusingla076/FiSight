@@ -5,7 +5,8 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { getInvestmentRebalancingSuggestions, type GetInvestmentRebalancingSuggestionsOutput } from '@/ai/flows/investment-rebalancing-suggestions';
-import { mockPortfolio } from '@/lib/mock-data';
+import { useProfile } from '@/hooks/use-profile';
+import { getFinancialSnapshot } from '@/lib/profile-derived-data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -20,6 +21,7 @@ const formSchema = z.object({
 });
 
 export function RebalancingTool() {
+  const { profile } = useProfile();
   const [result, setResult] = useState<GetInvestmentRebalancingSuggestionsOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -38,7 +40,8 @@ export function RebalancingTool() {
     setResult(null);
 
     try {
-      const portfolioData = JSON.stringify(mockPortfolio);
+      const snap = getFinancialSnapshot(profile);
+      const portfolioData = JSON.stringify(snap.assetItems);
       const response = await getInvestmentRebalancingSuggestions({
         ...values,
         portfolioData,

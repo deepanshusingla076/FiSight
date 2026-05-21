@@ -10,6 +10,9 @@ import {
   Calculator, 
   FileText, 
   MessageSquare,
+  Target,
+  User,
+  Bot,
   ChevronUp,
   Search,
   Command
@@ -22,9 +25,12 @@ import { Input } from '@/components/ui/input';
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, color: 'text-blue-500' },
   { href: '/investments', label: 'Investments', icon: BarChart3, color: 'text-green-500' },
+  { href: '/goals', label: 'Goals', icon: Target, color: 'text-amber-500' },
   { href: '/affordability', label: 'Affordability', icon: Calculator, color: 'text-purple-500' },
   { href: '/scenarios', label: 'Scenarios', icon: FileText, color: 'text-orange-500' },
-  { href: '/ai-chat', label: 'AI Assistant', icon: MessageSquare, color: 'text-pink-500' },
+  { href: '/advisor', label: 'AI Avatar', icon: Bot, color: 'text-emerald-500' },
+  { href: '/ai-chat', label: 'AI Chat', icon: MessageSquare, color: 'text-pink-500' },
+  { href: '/profile', label: 'Profile', icon: User, color: 'text-cyan-500' },
   { href: '/settings', label: 'Settings', icon: Settings, color: 'text-gray-500' },
 ];
 
@@ -68,7 +74,7 @@ export function CommandDock({ isExpanded, onToggleExpanded }: CommandDockProps) 
 
               {/* Quick Navigation Icons */}
               <div className="flex items-center gap-1">
-                {menuItems.slice(0, 5).map((item) => (
+                {menuItems.slice(0, 6).map((item) => (
                   <Link key={item.href} href={item.href}>
                     <Button
                       variant="ghost"

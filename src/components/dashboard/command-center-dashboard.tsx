@@ -1,6 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useProfile } from '@/hooks/use-profile';
+import { getFinancialSnapshot } from '@/lib/profile-derived-data';
+import type { UserProfile } from '@/lib/user-profile';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { 
   LayoutDashboard, 
@@ -31,7 +34,18 @@ interface Widget {
   content: React.ReactNode;
 }
 
-const initialWidgets: Widget[] = [
+function buildWidgets(profile: UserProfile): Widget[] {
+  const snap = getFinancialSnapshot(profile);
+  const monthlyRemaining = Math.max(0, snap.monthlyIncome - snap.monthlyExpenses);
+  const emergencyTarget = profile.monthlyExpenses * 6;
+  const emergencyPct = emergencyTarget > 0
+    ? Math.min(100, Math.round((snap.totalAssets / emergencyTarget) * 100))
+    : 0;
+  const debtPaydownPct = snap.totalDebt > 0
+    ? Math.min(100, Math.round((snap.totalAssets / (snap.totalAssets + snap.totalDebt)) * 100))
+    : 0;
+
+  return [
   {
     id: 'net-worth',
     title: 'Net Worth',
@@ -41,19 +55,27 @@ const initialWidgets: Widget[] = [
     color: 'text-green-600',
     content: (
       <div className="space-y-4">
-        <div className="text-3xl font-bold text-green-600">$125,430</div>
+        <div className="text-3xl font-bold text-green-600">${snap.netWorth.toLocaleString()}</div>
         <div className="flex items-center gap-2 text-sm">
           <TrendingUp className="w-4 h-4 text-green-500" />
-          <span className="text-green-600">+2.4% this month</span>
+          <span className="text-green-600">Savings rate {snap.savingsRate}%</span>
         </div>
-        <div className="h-20 bg-gradient-to-r from-green-100 to-green-50 rounded-lg flex items-end justify-between p-3">
-          {[40, 65, 45, 80, 60, 90, 75].map((height, i) => (
-            <div
-              key={i}
-              className="bg-green-500 rounded-sm w-3"
-              style={{ height: `${height}%` }}
-            />
-          ))}
+        <div className="flex h-20 items-end justify-between gap-1 rounded-lg bg-muted/40 p-3">
+          {snap.assetItems.length === 0 ? (
+            <p className="w-full text-center text-xs text-muted-foreground">No assets entered</p>
+          ) : (
+            snap.assetItems.map((item, i) => {
+              const max = Math.max(...snap.assetItems.map((a) => a.amount), 1);
+              return (
+                <div
+                  key={i}
+                  className="min-w-[8px] flex-1 rounded-sm bg-green-500"
+                  style={{ height: `${Math.max(8, (item.amount / max) * 100)}%` }}
+                  title={`${item.name}: $${item.amount.toLocaleString()}`}
+                />
+              );
+            })
+          )}
         </div>
       </div>
     ),
@@ -67,21 +89,27 @@ const initialWidgets: Widget[] = [
     color: 'text-blue-600',
     content: (
       <div className="space-y-4">
-        <div className="text-2xl font-bold text-blue-600">$3,240</div>
+        <div className="text-2xl font-bold text-blue-600">${profile.monthlyExpenses.toLocaleString()}</div>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span>Food & Dining</span>
-            <span>$890</span>
+            <span>Monthly income</span>
+            <span>${Math.round(snap.monthlyIncome).toLocaleString()}</span>
           </div>
           <div className="w-full bg-blue-100 rounded-full h-2">
-            <div className="bg-blue-500 h-2 rounded-full w-3/4" />
+            <div
+              className="bg-blue-500 h-2 rounded-full"
+              style={{ width: `${Math.min(100, snap.monthlyIncome > 0 ? (profile.monthlyExpenses / snap.monthlyIncome) * 100 : 0)}%` }}
+            />
           </div>
           <div className="flex justify-between text-sm">
-            <span>Transportation</span>
-            <span>$540</span>
+            <span>Remaining</span>
+            <span>${monthlyRemaining.toLocaleString()}</span>
           </div>
           <div className="w-full bg-blue-100 rounded-full h-2">
-            <div className="bg-blue-500 h-2 rounded-full w-1/2" />
+            <div
+              className="bg-blue-500 h-2 rounded-full"
+              style={{ width: `${snap.monthlyIncome > 0 ? (monthlyRemaining / snap.monthlyIncome) * 100 : 0}%` }}
+            />
           </div>
         </div>
       </div>
@@ -96,20 +124,22 @@ const initialWidgets: Widget[] = [
     color: 'text-purple-600',
     content: (
       <div className="space-y-4">
-        <div className="text-2xl font-bold text-purple-600">$89,240</div>
+        <div className="text-2xl font-bold text-purple-600">${snap.totalAssets.toLocaleString()}</div>
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center">
-            <div className="text-sm text-muted-foreground">Stocks</div>
-            <div className="text-lg font-semibold">65%</div>
+            <div className="text-sm text-muted-foreground">Assets</div>
+            <div className="text-lg font-semibold">${snap.totalAssets.toLocaleString()}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-muted-foreground">Bonds</div>
-            <div className="text-lg font-semibold">35%</div>
+            <div className="text-sm text-muted-foreground">Debt</div>
+            <div className="text-lg font-semibold">${snap.totalDebt.toLocaleString()}</div>
           </div>
         </div>
         <div className="h-16 bg-gradient-to-r from-purple-100 to-purple-50 rounded-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-purple-500 w-2/3 rounded-lg" />
-          <div className="absolute right-0 inset-y-0 bg-purple-300 w-1/3 rounded-r-lg" />
+          <div
+            className="absolute inset-y-0 left-0 bg-purple-500 rounded-lg"
+            style={{ width: `${snap.totalAssets + snap.totalDebt > 0 ? (snap.totalAssets / (snap.totalAssets + snap.totalDebt)) * 100 : 50}%` }}
+          />
         </div>
       </div>
     ),
@@ -125,20 +155,20 @@ const initialWidgets: Widget[] = [
       <div className="space-y-3">
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span>Emergency Fund</span>
-            <span>75%</span>
+            <span>Emergency fund (6 mo)</span>
+            <span>{emergencyPct}%</span>
           </div>
           <div className="w-full bg-orange-100 rounded-full h-2">
-            <div className="bg-orange-500 h-2 rounded-full w-3/4" />
+            <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${emergencyPct}%` }} />
           </div>
         </div>
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <span>House Down Payment</span>
-            <span>45%</span>
+            <span>Asset vs debt</span>
+            <span>{debtPaydownPct}%</span>
           </div>
           <div className="w-full bg-orange-100 rounded-full h-2">
-            <div className="bg-orange-500 h-2 rounded-full w-2/5" />
+            <div className="bg-orange-500 h-2 rounded-full" style={{ width: `${debtPaydownPct}%` }} />
           </div>
         </div>
       </div>
@@ -153,25 +183,25 @@ const initialWidgets: Widget[] = [
     color: 'text-slate-600',
     content: (
       <div className="space-y-3">
-        {[
-          { name: 'Grocery Store', amount: '-$89.50', time: '2 hours ago' },
-          { name: 'Salary Deposit', amount: '+$3,200.00', time: '1 day ago' },
-          { name: 'Netflix', amount: '-$15.99', time: '2 days ago' },
-          { name: 'Gas Station', amount: '-$45.20', time: '3 days ago' },
-        ].map((transaction, i) => (
+        {[...snap.assetItems, ...snap.liabilityItems.map((l) => ({ name: l.name, amount: -l.amount }))]
+          .slice(0, 4)
+          .map((item, i) => (
           <div key={i} className="flex items-center justify-between">
             <div>
-              <div className="text-sm font-medium">{transaction.name}</div>
-              <div className="text-xs text-muted-foreground">{transaction.time}</div>
+              <div className="text-sm font-medium">{item.name}</div>
+              <div className="text-xs text-muted-foreground">From profile</div>
             </div>
             <div className={cn(
               "text-sm font-semibold",
-              transaction.amount.startsWith('+') ? "text-green-600" : "text-red-600"
+              item.amount >= 0 ? "text-green-600" : "text-red-600"
             )}>
-              {transaction.amount}
+              {item.amount >= 0 ? '+' : '-'}${Math.abs(item.amount).toLocaleString()}
             </div>
           </div>
         ))}
+        {snap.assetItems.length === 0 && snap.liabilityItems.length === 0 && (
+          <p className="text-xs text-muted-foreground">Add assets in Profile to populate this list.</p>
+        )}
       </div>
     ),
   },
@@ -185,7 +215,7 @@ const initialWidgets: Widget[] = [
     content: (
       <div className="space-y-3">
         <div className="text-center">
-          <div className="text-lg font-bold text-indigo-600">$1,760</div>
+          <div className="text-lg font-bold text-indigo-600">${monthlyRemaining.toLocaleString()}</div>
           <div className="text-xs text-muted-foreground">Remaining this month</div>
         </div>
         <div className="w-16 h-16 mx-auto relative">
@@ -198,19 +228,28 @@ const initialWidgets: Widget[] = [
     ),
   },
 ];
+}
 
 export function CommandCenterDashboard() {
-  const [widgets, setWidgets] = useState(initialWidgets);
+  const { profile } = useProfile();
+  const [widgets, setWidgets] = useState(() => buildWidgets(profile));
+
+  useEffect(() => {
+    setWidgets((prev) => {
+      const rebuilt = buildWidgets(profile);
+      const order = prev.map((w) => w.id);
+      return order.map((id) => rebuilt.find((w) => w.id === id) ?? rebuilt[0]).filter(Boolean) as Widget[];
+    });
+  }, [profile]);
   const [isCustomizing, setIsCustomizing] = useState(false);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    const items = Array.from(widgets);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setWidgets(items);
+    const order = Array.from(widgetOrder);
+    const [reorderedItem] = order.splice(result.source.index, 1);
+    order.splice(result.destination.index, 0, reorderedItem);
+    setWidgetOrder(order);
   };
 
   const getGridCols = (size: string) => {

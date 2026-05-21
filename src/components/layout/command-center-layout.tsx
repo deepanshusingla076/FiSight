@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CommandDock } from './command-dock';
-import { FloatingActionButtons } from './floating-action-buttons';
+import { AppFloatingDock } from './app-floating-dock';
 import { Header } from './header';
 
 interface CommandCenterLayoutProps {
@@ -26,8 +26,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps) {
         </div>
       </main>
 
-      {/* Floating Action Buttons */}
-      <FloatingActionButtons />
+      <AppFloatingDock />
 
       {/* Command Dock at bottom */}
       <CommandDock 

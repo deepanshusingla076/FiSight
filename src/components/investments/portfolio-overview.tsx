@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Card,
   CardContent,
@@ -14,42 +16,58 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { mockPortfolio } from '@/lib/mock-data';
+import { useProfile } from '@/hooks/use-profile';
+import { getFinancialSnapshot } from '@/lib/profile-derived-data';
+import Link from 'next/link';
 
 export function PortfolioOverview() {
-  const totalValue = mockPortfolio.reduce((acc, investment) => acc + investment.currentValue, 0);
+  const { profile } = useProfile();
+  const snap = getFinancialSnapshot(profile);
+  const holdings = snap.assetItems;
+  const totalValue = holdings.reduce((acc, item) => acc + item.amount, 0);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Your Holdings</CardTitle>
-        <CardDescription>An overview of your current investments.</CardDescription>
+        <CardTitle className="font-headline">Your holdings</CardTitle>
+        <CardDescription>
+          From your profile assets.{' '}
+          <Link href="/profile" className="underline">
+            Update profile
+          </Link>
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Asset</TableHead>
-              <TableHead>Symbol</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right">Value</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {mockPortfolio.map((investment) => (
-              <TableRow key={investment.id}>
-                <TableCell className="font-medium">{investment.name}</TableCell>
-                <TableCell>{investment.symbol}</TableCell>
-                <TableCell className="text-right">{investment.quantity}</TableCell>
-                <TableCell className="text-right">${investment.currentValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+        {holdings.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            List brokerage, 401(k), and other investments in Profile → Assets.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Asset</TableHead>
+                <TableHead className="text-right">Value</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {holdings.map((item, i) => (
+                <TableRow key={i}>
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="text-right">
+                    ${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
-      <CardFooter className="font-bold text-lg justify-end">
-        Total Value: ${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-      </CardFooter>
+      {holdings.length > 0 && (
+        <CardFooter className="justify-end text-lg font-bold">
+          Total: ${totalValue.toLocaleString()}
+        </CardFooter>
+      )}
     </Card>
   );
 }

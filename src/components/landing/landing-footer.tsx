@@ -12,11 +12,12 @@ export function LandingFooter() {
   const { t } = useLanguage();
   
   const footerLinks = [
-    { href: '#services', label: t('footer.services') },
-    { href: '#about', label: t('footer.about') },
-    { href: '#faq', label: t('footer.faq') },
-    { href: '#privacy', label: t('footer.privacy') },
-    { href: '#terms', label: t('footer.terms') },
+    { href: '/features', label: t('nav.features') },
+    { href: '/pricing', label: t('nav.pricing') },
+    { href: '/about', label: t('footer.about') },
+    { href: '/#faq', label: t('footer.faq') },
+    { href: '/privacy', label: t('footer.privacy') },
+    { href: '/terms', label: t('footer.terms') },
   ];
 
   return (

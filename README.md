@@ -2,6 +2,8 @@
 
 > **Empowering smarter financial decisions through AI and Machine Learning**
 
+📘 **Docs:** [`LEARNING.md`](docs/LEARNING.md) · [`AVATAR-ASSISTANT.md`](docs/AVATAR-ASSISTANT.md) · [`IMPLEMENTATION-STATUS.md`](docs/IMPLEMENTATION-STATUS.md) (what’s built vs planned)
+
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)

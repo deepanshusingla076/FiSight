@@ -78,11 +78,12 @@ const FinancialAdvisorOutputSchema = z.object({
 export type FinancialAdvisorOutput = z.infer<typeof FinancialAdvisorOutputSchema>;
 
 /**
- * Prompt template for the financial advisor chatbot
+ * Financial Advisor Chatbot Flow
+ * Uses pre-trained model weights and Fi Money MCP server integration
  */
-const financialAdvisorPrompt = ai.definePrompt(
+export const financialAdvisorChatbot = ai.defineFlow(
   {
-    name: 'financialAdvisorPrompt',
+    name: 'financialAdvisorChatbot',
     inputSchema: FinancialAdvisorInputSchema,
     outputSchema: FinancialAdvisorOutputSchema,
   },
@@ -96,8 +97,7 @@ const financialAdvisorPrompt = ai.definePrompt(
     const totalInvestments = financialData.investments.reduce((sum, inv) => sum + inv.value, 0);
     const netWorth = financialData.currentBalance + totalInvestments - totalDebt;
 
-    return {
-      text: `You are an expert financial advisor with access to a user's complete financial profile. 
+    const promptText = `You are an expert financial advisor with access to a user's complete financial profile. 
 You have been tracking their daily interactions and financial activities.
 
 USER PROFILE:
@@ -146,32 +146,13 @@ As their personal financial advisor, provide comprehensive guidance that:
 5. Assesses financial health and risks
 6. Suggests specific next steps
 
-Be conversational, empathetic, and practical. Consider the time context and their recent activities.
+Be conversational, empathetic, and practical. Consider the time context and their recent activities.`;
 
-Provide your response in the following structured format:
-- response: A conversational answer to their question
-- suggestions: Specific actionable recommendations with priority, reasoning, impact, and timeframe
-- financialHealthScore: A score from 0-100 based on their overall financial health
-- insights: Key observations about their financial situation
-- nextSteps: Immediate actions they should consider
-- riskAssessment: Current risk level and factors
-- followUpQuestions: Questions to continue the conversation`,
-    };
-  }
-);
+    const { output } = await ai.generate({
+      prompt: promptText,
+      output: { schema: FinancialAdvisorOutputSchema }
+    });
 
-/**
- * Financial Advisor Chatbot Flow
- * Uses pre-trained model weights and Fi Money MCP server integration
- */
-export const financialAdvisorChatbot = ai.defineFlow(
-  {
-    name: 'financialAdvisorChatbot',
-    inputSchema: FinancialAdvisorInputSchema,
-    outputSchema: FinancialAdvisorOutputSchema,
-  },
-  async (input) => {
-    const { output } = await financialAdvisorPrompt(input);
     return output!;
   }
 );

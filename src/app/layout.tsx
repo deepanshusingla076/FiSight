@@ -6,8 +6,18 @@ import { LanguageProvider } from '@/contexts/language-context';
 import { AuthProvider } from '@/contexts/auth-context';
 
 export const metadata: Metadata = {
-  title: 'FiSight',
-  description: 'AI-Powered Financial Insights',
+  title: {
+    default: 'FiSight — AI Financial Brain',
+    template: '%s | FiSight',
+  },
+  description:
+    'AI-powered financial intelligence: analytics, forecasting, affordability, portfolio tools, and a finance-only advisor.',
+  keywords: ['fintech', 'AI advisor', 'personal finance', 'investment', 'affordability'],
+  openGraph: {
+    title: 'FiSight',
+    description: 'AI Financial Brain for Everyday People',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({

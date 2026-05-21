@@ -1,217 +1,141 @@
-// File: src/app/api/ai/chat/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { askGemini } from "@/lib/gemini";
+import { NextRequest, NextResponse } from 'next/server';
+import { askGemini, sanitizeGeminiError } from '@/lib/gemini';
+import { getMlApiUrl, requireGeminiKey } from '@/lib/env';
+import { getClientIp, rateLimit } from '@/lib/rate-limit';
+import { isFinancialQuery, FINANCE_ONLY_REJECTION } from '@/lib/finance-guard';
+import { normalizeProfile, profileToMlPayload, type UserProfile } from '@/lib/user-profile';
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-// TypeScript interfaces
 interface ChatRequest {
   prompt: string;
   userContext?: string;
+  profile?: {
+    age?: number;
+    income?: number;
+    expenses?: number;
+    savings?: number;
+    debt?: number;
+    credit_score?: number;
+    investment_amount?: number;
+    employment_years?: number;
+    num_dependents?: number;
+    property_value?: number;
+  };
 }
 
 interface MLPredictions {
-  investment?: any;
-  affordability?: any;
-  score?: any;
-  scenario?: any;
+  investment?: Record<string, unknown> | null;
+  affordability?: Record<string, unknown> | null;
+  health?: Record<string, unknown> | null;
+  scenario?: Record<string, unknown> | null;
 }
 
-interface ChatResponse {
-  answer: string;
-  models: MLPredictions;
-}
-
-// Helper function to call FastAPI endpoints
-async function callMLEndpoint(endpoint: string, data: any): Promise<any> {
-  const fastApiUrl = process.env.FASTAPI_URL || "http://localhost:8000";
-  
+async function callMLEndpoint(endpoint: string, data: Record<string, unknown>) {
   try {
-    const response = await fetch(`${fastApiUrl}${endpoint}`, {
+    const response = await fetch(`${getMlApiUrl()}${endpoint}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      console.warn(`ML endpoint ${endpoint} returned ${response.status}`);
-      return null;
-    }
-
+    if (!response.ok) return null;
     return await response.json();
-  } catch (error) {
-    console.warn(`ML endpoint ${endpoint} failed:`, error);
+  } catch {
     return null;
   }
 }
 
-// Extract financial data from user context or use defaults
-function extractFinancialData(userContext?: string) {
-  // For demo purposes, use reasonable defaults
-  // In production, this would parse user context or get from database
-  return {
-    age: 30,
-    income: 75000,
-    expenses: 50000,
-    savings: 25000,
-    debt: 15000,
-    credit_score: 720,
-    investment_amount: 10000,
-    employment_years: 5,
-    num_dependents: 0,
-    property_value: 0
-  };
+function resolveProfile(body: ChatRequest) {
+  const p = body.profile;
+  if (p && 'annualIncome' in p) {
+    return profileToMlPayload(normalizeProfile(p as Partial<UserProfile>));
+  }
+  if (p && typeof p.income === 'number') {
+    return {
+      age: p.age ?? 28,
+      income: p.income,
+      expenses: p.expenses ?? 0,
+      savings: p.savings ?? 0,
+      debt: p.debt ?? 0,
+      credit_score: p.credit_score ?? 700,
+      investment_amount: p.investment_amount ?? 0,
+      employment_years: p.employment_years ?? 0,
+      num_dependents: p.num_dependents ?? 0,
+      property_value: p.property_value ?? 0,
+    };
+  }
+  return profileToMlPayload(normalizeProfile(null));
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse<ChatResponse | { error: string }>> {
+function buildMlContext(ml: MLPredictions, userContext?: string): string {
+  const lines: string[] = [];
+  const health = ml.health as { health_score?: number; health_category?: string } | null;
+  const investment = ml.investment as { risk_score?: number; risk_category?: string } | null;
+  const affordability = ml.affordability as { affordability_amount?: number } | null;
+  const scenario = ml.scenario as { recommended_scenario?: string } | null;
+
+  if (health?.health_score != null) {
+    lines.push(`Financial health: ${Math.round(health.health_score)}/100 (${health.health_category})`);
+  }
+  if (investment?.risk_score != null) {
+    lines.push(`Investment risk: ${Math.round(investment.risk_score)}/100 (${investment.risk_category})`);
+  }
+  if (affordability?.affordability_amount != null) {
+    lines.push(`Max affordable purchase: $${Math.round(affordability.affordability_amount).toLocaleString()}`);
+  }
+  if (scenario?.recommended_scenario) {
+    lines.push(`Recommended strategy: ${scenario.recommended_scenario}`);
+  }
+
+  if (lines.length === 0) return userContext || '';
+  return `ML analysis:\n${lines.join('\n')}${userContext ? `\n\nUser notes:\n${userContext}` : ''}`;
+}
+
+export async function POST(req: NextRequest) {
   try {
-    // 1. Validate environment variables
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("❌ GEMINI_API_KEY is missing");
+    const ip = getClientIp(req);
+    const limited = rateLimit(`chat:${ip}`, 30, 60_000);
+    if (!limited.ok) {
       return NextResponse.json(
-        { error: "GEMINI_API_KEY missing" },
-        { status: 500 }
+        { error: `Rate limit exceeded. Retry in ${limited.retryAfterSec}s` },
+        { status: 429 }
       );
     }
 
-    // 2. Parse and validate request body
-    let requestBody: ChatRequest;
-    try {
-      requestBody = await req.json();
-    } catch (parseError) {
-      return NextResponse.json(
-        { error: "Invalid JSON in request body" },
-        { status: 400 }
-      );
+    const body: ChatRequest = await req.json();
+    const { prompt, userContext } = body;
+
+    if (!prompt?.trim()) {
+      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
     }
 
-    const { prompt, userContext } = requestBody;
-
-    // 3. Validate required fields
-    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Prompt is required and must be a non-empty string" },
-        { status: 400 }
-      );
+    if (!isFinancialQuery(prompt)) {
+      return NextResponse.json({ answer: FINANCE_ONLY_REJECTION, models: {} });
     }
-
-    // 4. Extract financial data for ML predictions
-    const financialData = extractFinancialData(userContext);
-
-    // 5. Call ML endpoints to get predictions
-    const mlPredictions: MLPredictions = {};
-
-    console.log("📊 Fetching ML predictions...");
-
-    // Get investment risk prediction
-    mlPredictions.investment = await callMLEndpoint('/predict/investments', {
-      age: financialData.age,
-      income: financialData.income,
-      savings: financialData.savings,
-      debt: financialData.debt,
-      investment_amount: financialData.investment_amount,
-      employment_years: financialData.employment_years,
-      credit_score: financialData.credit_score
-    });
-
-    // Get affordability prediction
-    mlPredictions.affordability = await callMLEndpoint('/predict/affordability', {
-      age: financialData.age,
-      income: financialData.income,
-      expenses: financialData.expenses,
-      savings: financialData.savings,
-      debt: financialData.debt,
-      credit_score: financialData.credit_score,
-      num_dependents: financialData.num_dependents,
-      property_value: financialData.property_value
-    });
-
-    // Get financial health score
-    mlPredictions.score = await callMLEndpoint('/predict/score', {
-      age: financialData.age,
-      income: financialData.income,
-      expenses: financialData.expenses,
-      savings: financialData.savings,
-      debt: financialData.debt,
-      credit_score: financialData.credit_score,
-      investment_amount: financialData.investment_amount
-    });
-
-    // Get scenario planning
-    mlPredictions.scenario = await callMLEndpoint('/predict/scenario', {
-      age: financialData.age,
-      income: financialData.income,
-      savings: financialData.savings,
-      debt: financialData.debt,
-      credit_score: financialData.credit_score
-    });
-
-    // 6. Build context string from ML predictions
-    const mlContext = [];
-
-    if (mlPredictions.score?.prediction) {
-      mlContext.push(`Financial Health Score: ${Math.round(mlPredictions.score.prediction)}/100 (${mlPredictions.score.details?.health_level})`);
-    }
-
-    if (mlPredictions.investment?.prediction) {
-      mlContext.push(`Investment Risk Score: ${Math.round(mlPredictions.investment.prediction)}/100 (${mlPredictions.investment.details?.risk_level})`);
-    }
-
-    if (mlPredictions.affordability?.prediction) {
-      const affordable = Math.round(mlPredictions.affordability.prediction);
-      mlContext.push(`Maximum Affordable Purchase: $${affordable.toLocaleString()}`);
-    }
-
-    if (mlPredictions.scenario?.prediction) {
-      mlContext.push(`Recommended Financial Strategy: ${mlPredictions.scenario.prediction} approach`);
-    }
-
-    const contextString = mlContext.length > 0 
-      ? `Based on the user's financial profile analysis:\n${mlContext.join('\n')}`
-      : userContext || "";
-
-    // 7. Get AI response from Gemini
-    console.log("🤖 Getting AI response with ML context...");
-    let aiResponse: string;
 
     try {
-      aiResponse = await askGemini(prompt, contextString);
-    } catch (geminiError: any) {
-      console.error("❌ Gemini AI failed:", geminiError);
-
-      // Check if FastAPI is down
-      const fastApiUrl = process.env.FASTAPI_URL || "http://localhost:8000";
-      try {
-        await fetch(`${fastApiUrl}/health`, { method: 'GET' });
-      } catch (fastApiError) {
-        return NextResponse.json(
-          { error: "AI services temporarily unavailable" },
-          { status: 502 }
-        );
-      }
-
-      return NextResponse.json(
-        { error: geminiError.message || "AI request failed" },
-        { status: 500 }
-      );
+      requireGeminiKey();
+    } catch {
+      return NextResponse.json({ error: 'GEMINI_API_KEY missing' }, { status: 500 });
     }
 
-    // 8. Return successful response
-    console.log("✅ Successfully generated AI response with ML integration");
-    
-    return NextResponse.json({
-      answer: aiResponse,
-      models: mlPredictions
-    }, { status: 200 });
+    const profile = resolveProfile(body);
 
-  } catch (unexpectedError: any) {
-    console.error("❌ Unexpected error in chat endpoint:", unexpectedError);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    const [investment, affordability, health, scenario] = await Promise.all([
+      callMLEndpoint('/predict/investment-risk', profile),
+      callMLEndpoint('/predict/affordability', profile),
+      callMLEndpoint('/predict/financial-health', profile),
+      callMLEndpoint('/predict/scenario', profile),
+    ]);
+
+    const models: MLPredictions = { investment, affordability, health, scenario };
+    const contextString = buildMlContext(models, userContext);
+    const answer = await askGemini(prompt, contextString);
+
+    return NextResponse.json({ answer, models });
+  } catch (err: unknown) {
+    console.error('Chat API error:', err);
+    return NextResponse.json({ error: sanitizeGeminiError(err) }, { status: 500 });
   }
 }
