@@ -11,7 +11,8 @@ function isOfflineFirestoreError(error: unknown): boolean {
     code === 'unavailable' ||
     code === 'failed-precondition' ||
     msg.includes('offline') ||
-    msg.includes('client is offline')
+    msg.includes('client is offline') ||
+    msg.includes('timeout')
   );
 }
 
@@ -41,7 +42,10 @@ export async function loadProfileFromCloud(uid: string): Promise<UserProfile | n
   try {
     const db = await getFirestoreDb();
     const ref = doc(db, 'users', uid, 'data', 'financialProfile');
-    const snap = await getDoc(ref);
+    const snap = await Promise.race([
+      getDoc(ref),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+    ]);
     if (!snap.exists()) return null;
     return normalizeProfile(snap.data() as Record<string, unknown>);
   } catch (error) {
@@ -57,7 +61,12 @@ export async function saveProfileToCloud(uid: string, profile: UserProfile): Pro
     const db = await getFirestoreDb();
     const normalized = normalizeProfile(profile);
     const ref = doc(db, 'users', uid, 'data', 'financialProfile');
-    await setDoc(ref, { ...normalized, updatedAt: serverTimestamp() }, { merge: true });
+    
+    // Add a 5 second timeout to prevent hanging if Firestore is unreachable/unprovisioned
+    await Promise.race([
+      setDoc(ref, { ...normalized, updatedAt: serverTimestamp() }, { merge: true }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+    ]);
   } catch (error) {
     if (!isOfflineFirestoreError(error)) {
       console.warn('[FiSight] Cloud profile save skipped:', error);

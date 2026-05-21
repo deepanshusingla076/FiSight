@@ -179,7 +179,7 @@ export function profileToMlPayload(profile: UserProfile) {
 }
 
 export function isProfileComplete(profile: UserProfile): boolean {
-  return profile.annualIncome > 0 && profile.monthlyExpenses > 0 && sumAssets(profile) > 0;
+  return profile.annualIncome > 0 && profile.monthlyExpenses > 0;
 }
 
 /** @deprecated use sumAssets */
