@@ -70,8 +70,8 @@ export function LandingHero() {
             src="/banner.png"
             alt="FiSight Financial Dashboard Preview"
             width={600}
-            height={400}
-            className="rounded-xl shadow-2xl"
+            height={452}
+            className="h-auto rounded-xl shadow-2xl"
             priority
           />
           <motion.div

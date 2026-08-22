@@ -98,8 +98,8 @@ export function AboutSection() {
               src="/banner2.png"
               alt="Financial empowerment visualization"
               width={500}
-              height={350}
-              className="rounded-xl shadow-2xl"
+              height={487}
+              className="h-auto rounded-xl shadow-2xl"
               data-ai-hint="financial empowerment"
             />
             <motion.div

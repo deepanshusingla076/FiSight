@@ -1,223 +1,128 @@
-# 💰 FiSight - AI-Powered Financial Advisory Platform
+# FiSight
 
-> **Empowering smarter financial decisions through AI and Machine Learning**
+FiSight is a final-year student project designed to explore how AI and data can support everyday financial decision-making. The application combines a Next.js frontend, a Python ML backend, and a simple demo-friendly workflow for budgeting, affordability analysis, investment guidance, and scenario planning.
 
-📘 **Docs:** [`LEARNING.md`](docs/LEARNING.md) · [`AVATAR-ASSISTANT.md`](docs/AVATAR-ASSISTANT.md) · [`IMPLEMENTATION-STATUS.md`](docs/IMPLEMENTATION-STATUS.md) (what’s built vs planned)
+## Project overview
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104.1-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Firebase](https://img.shields.io/badge/Firebase-11.10.0-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com/)
-[![XGBoost](https://img.shields.io/badge/XGBoost-2.1.1-00599C?logo=xgboost&logoColor=white)](https://xgboost.readthedocs.io/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4+-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+This project was built to test a practical idea: make financial planning more approachable through a clean interface, AI-assisted suggestions, and clear user-facing insights. It is not a regulated financial service and should be treated as a prototype for learning, experimentation, and demonstration.
 
-## 🚀 **Quick Start**
+## Features
 
-### **Option 1: Full Stack Development (Recommended)**
+- Budget and financial overview dashboard
+- AI advisor chatbot for financial questions
+- Affordability analysis for major purchases
+- Investment guidance and risk assessment module
+- Scenario-based planning for financial decisions
+- Multilingual interface with English and Hindi support
+- Firebase-based authentication flow
+- Python ML service for prediction-based financial insights
+
+## Tech stack
+
+- Frontend: Next.js, TypeScript, Tailwind CSS, Framer Motion
+- Backend: Python, FastAPI
+- AI/ML: scikit-learn, XGBoost, Google Generative AI
+- Authentication: Firebase
+- Styling/UI: shadcn/ui and custom components
+
+## Project structure
+
+```text
+FiSight/
+├── src/                 # Frontend application
+├── ml/                  # Python ML service and model training code
+├── public/              # Static assets
+├── package.json         # Frontend scripts and dependencies
+├── next.config.ts       # Next.js configuration
+├── tailwind.config.ts   # Tailwind configuration
+├── tsconfig.json        # TypeScript configuration
+├── docker-compose.yml   # Local infra setup for demo services
+├── apphosting.yaml      # App Hosting configuration
+├── .env.example         # Sample environment variables
+├── .gitignore           # Git ignore rules
+├── README.md            # Project documentation
+└── package-lock.json    # Lock file for npm install
+```
+
+## Getting started
+
+### 1. Install frontend dependencies
+
 ```bash
-# Clone the repository
-git clone https://github.com/deepanshusingla076/fisight.git
-cd fisight
-
-# Install frontend dependencies
 npm install
+```
 
-# Set up ML backend environment
+### 2. Set up the ML backend
+
+```bash
 cd ml
 pip install -r requirements.txt
-cd ..
+```
 
-# Start both frontend and ML backend simultaneously  
+### 3. Run the app
+
+#### Frontend only
+
+```bash
+npm run dev
+```
+
+This starts the app at http://localhost:9002.
+
+#### ML API only
+
+```bash
+cd ml
+python server.py
+```
+
+This starts the API at http://localhost:8000.
+
+#### Full stack together
+
+```bash
 npm run dev:full
 ```
 
-### **Option 2: Frontend Only**
+## Environment setup
+
+Create a local environment file based on the project setup and fill in your keys:
+
 ```bash
-npm install
-npm run dev        # Starts on http://localhost:9002
+cp .env.example .env.local
 ```
 
-### **Option 3: Individual Services**
-```bash
-# Terminal 1: Start Next.js frontend
-npm run dev        # http://localhost:9002
+The app expects Firebase and AI service variables such as:
 
-# Terminal 2: Start ML API backend  
-npm run dev:ml     # http://localhost:8000
-```
+- NEXT_PUBLIC_FIREBASE_API_KEY
+- NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+- NEXT_PUBLIC_FIREBASE_PROJECT_ID
+- GOOGLE_GENAI_API_KEY or GEMINI_API_KEY
+- NEXT_PUBLIC_ML_API_URL
 
-**🌐 Access Points:**
-- **🖥️ Web Application**: http://localhost:9002
-- **🤖 ML API Server**: http://localhost:8000  
-- **📚 API Documentation**: http://localhost:8000/docs
-- **🔬 Interactive API**: http://localhost:8000/redoc
+## Development notes
 
-## 📋 **Table of Contents**
+- The frontend is built as a demo-grade financial planning application.
+- The ML backend is designed to support prediction-based financial analysis and experimentation.
+- Firebase is used for authentication and basic app features.
+- The interface is intentionally simple and readable to keep the project professional and easy to explain in a presentation or viva.
 
-- [🎯 Overview](#-overview)
-- [✨ Key Features](#-key-features)  
-- [🛠️ Tech Stack](#️-tech-stack)
-- [🏗️ Architecture](#️-architecture)
-- [📁 Project Structure](#-project-structure)
-- [🔧 Installation Guide](#-installation-guide)
-- [⚙️ Configuration](#️-configuration)
-- [👩‍💻 Development](#-development)
-- [🤖 ML Models & API](#-ml-models--api)
-- [🚀 Deployment](#-deployment)
-- [🧪 Testing](#-testing)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
-- [📞 Support](#-support)
+## Limitations
 
-## 🎯 **Overview**
+This project is a learning-focused prototype and has practical limits:
 
-FiSight is a cutting-edge financial advisory platform that combines modern web technologies with advanced machine learning to provide personalized financial insights. Built with a focus on user experience and data-driven recommendations, FiSight helps individuals make informed financial decisions through AI-powered analysis.
+- It is not a production-grade financial institution platform.
+- AI-generated suggestions should be treated as guidance, not professional financial advice.
+- Data and services may depend on local configuration and demo environment setup.
 
-### **🌟 What Makes FiSight Special**
+## Team and use case
 
-- **🧠 AI-First Approach**: Four specialized ML models trained on 15,000+ synthetic financial records
-- **📱 Modern UX**: Responsive, intuitive interface built with Next.js and Tailwind CSS  
-- **🔒 Privacy-Focused**: Secure data handling with Firebase authentication and encryption
-- **🌐 Multilingual**: Full English/Hindi support with seamless language switching
-- **⚡ Real-Time**: Instant financial predictions and recommendations
-- **🔬 Production-Ready**: Fully functional ML API with comprehensive documentation
+FiSight is best presented as a student project that demonstrates the application of AI in personal finance and financial planning workflows. It is suitable for showcasing system design, frontend development, backend integration, and ML-based analysis in a final-year project.
 
-## ✨ **Key Features**
+## License
 
-### 🤖 **AI-Powered Financial Intelligence**
-- **📊 Investment Risk Assessment**: ML-driven risk tolerance analysis with personalized scoring
-- **💰 Affordability Calculator**: Intelligent purchase capacity analysis based on income, expenses, and goals  
-- **🏥 Financial Health Scoring**: Real-time health assessment with actionable improvement recommendations
-- **🎯 Scenario Planning**: AI-powered strategic recommendations for different financial scenarios
-- **💬 Smart Chatbot**: Conversational AI financial advisor with context-aware responses
+This project is for academic and demonstration purposes. Add a license only if your institution or team requires one.
 
-### � **Modern Web Experience**
-- **📈 Interactive Dashboard**: Comprehensive financial overview with dynamic charts and insights
-- **🌍 Multilingual Interface**: Seamless English/Hindi switching with cultural financial context
-- **📱 Responsive Design**: Mobile-first approach ensuring optimal experience across all devices
-- **⚡ Real-Time Updates**: Live financial data processing with instant feedback
-- **🎨 Modern UI**: Clean, intuitive interface built with shadcn/ui components
-
-### 🔐 **Security & Authentication**
-- **🔒 Firebase Auth**: Secure authentication with Google Sign-In and email/password
-- **🛡️ Data Encryption**: Bank-level security for sensitive financial information
-- **🔑 Environment Security**: Secure API key management and configuration
-- **👤 Privacy Controls**: User-controlled data sharing and privacy settings
-
-### 📊 **Financial Management Tools**
-- **💼 Portfolio Analytics**: Comprehensive investment performance tracking and analysis
-- **📋 Transaction Management**: Automated categorization and expense tracking
-- **🎯 Goal Setting**: Financial target planning with milestone tracking
-- **💎 Net Worth Calculator**: Complete wealth assessment including assets and liabilities
-- **⚖️ Portfolio Rebalancing**: AI-driven optimization suggestions based on risk tolerance
-
-## 🛠️ **Tech Stack**
-
-### **🖥️ Frontend & UI**
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Next.js** | 15.3.3 | React framework with App Router and server-side rendering |
-| **TypeScript** | 5.0+ | Type-safe JavaScript with enhanced developer experience |
-| **Tailwind CSS** | 3.4+ | Utility-first CSS framework for rapid UI development |
-| **shadcn/ui** | Latest | High-quality, accessible React components |
-| **Framer Motion** | 12.23+ | Smooth animations and micro-interactions |
-| **React Hook Form** | 7.54+ | Performant forms with easy validation |
-| **Recharts** | 2.15+ | Responsive charts built on D3.js |
-
-### **🤖 Backend & AI**
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **FastAPI** | 0.104.1 | Modern, fast web framework for building ML APIs |
-| **Python** | 3.10+ | Core language for ML backend and data processing |
-| **XGBoost** | 2.1.1 | Gradient boosting framework for ML models |
-| **Scikit-learn** | 1.5.2 | Machine learning library for data analysis |
-| **Imbalanced-learn** | 0.12.4 | Tools for handling imbalanced datasets |
-| **Google Genkit** | 1.14+ | AI flow orchestration and prompt management |
-| **Gemini AI** | Latest | Large language model for conversational AI |
-
-### **🗄️ Database & Authentication**
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Firebase** | 11.10.0 | Backend-as-a-Service for auth and database |
-| **Firestore** | Latest | NoSQL document database for user data |
-| **Firebase Auth** | Latest | Authentication with multiple providers |
-
-### **🔧 Development & Build Tools**
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Node.js** | 18+ | JavaScript runtime for build tools and server |
-| **npm/yarn** | Latest | Package management and dependency resolution |
-| **ESLint** | Latest | Code linting and quality enforcement |
-| **Prettier** | Latest | Code formatting and style consistency |
-| **Concurrently** | 8.2.2 | Run multiple commands simultaneously |
-
-## 🏗️ **Architecture**
-
-```mermaid
-graph TB
-    subgraph "Frontend (Next.js)"
-        A[React Components] --> B[Tailwind UI]
-        A --> C[Context Providers]
-        C --> D[Firebase Auth]
-        A --> E[API Clients]
-    end
-    
-    subgraph "Backend Services"  
-        E --> F[ML API Server]
-        E --> G[Next.js API Routes]
-        F --> H[ML Models]
-        G --> I[Firebase Services]
-    end
-    
-    subgraph "Data Layer"
-        H --> J[Trained Models]
-        I --> K[Firestore DB]
-        I --> L[Firebase Auth]
-    end
-    
-    subgraph "External APIs"
-        E --> M[Google Gemini]
-        G --> N[Email Service]
-    end
-```
-
-### **🔄 Data Flow**
-1. **User Input**: Financial data entered through React forms
-2. **Validation**: Client-side validation with Zod schemas  
-3. **ML Processing**: Data sent to FastAPI backend for predictions
-4. **AI Enhancement**: Results enriched with Gemini AI insights
-5. **Storage**: User preferences saved to Firestore
-6. **Visualization**: Results displayed with interactive charts
-
-## 📁 **Project Structure**
-
-```
-FiSight/
-├── � README.md                     # Project documentation
-├── 📄 package.json                  # Node.js dependencies and scripts
-├── 📄 next.config.ts                # Next.js configuration
-├── 📄 tailwind.config.ts            # Tailwind CSS configuration  
-├── 📄 tsconfig.json                 # TypeScript configuration
-├── 📄 components.json               # shadcn/ui component configuration
-├── 📄 test_ml_api.py                # ML API testing script
-├── 📄 apphosting.yaml               # Firebase App Hosting config
-├── 📄 postcss.config.mjs            # PostCSS configuration
-│
-├── 📁 src/                          # 🖥️ Frontend Application Source
-│   ├── 📁 app/                      # Next.js App Router
-│   │   ├── 📄 globals.css           # Global styles and CSS variables
-│   │   ├── 📄 layout.tsx            # Root layout with providers
-│   │   ├── 📄 page.tsx              # Landing page component
-│   │   │
-│   │   ├── 📁 (main)/              # Protected main application routes
-│   │   │   ├── � layout.tsx        # Main app layout with sidebar
-│   │   │   ├── �📁 dashboard/        # Financial overview and insights
-│   │   │   ├── 📁 investments/      # Portfolio management tools
-│   │   │   ├── 📁 affordability/    # Purchase analysis calculator
-│   │   │   ├── 📁 scenarios/        # Financial planning scenarios
-│   │   │   ├── 📁 ai-chat/         # AI chatbot interface
 │   │   │   ├── 📁 profile/          # User settings and preferences
 │   │   │   └── 📁 settings/         # App configuration
 │   │   │

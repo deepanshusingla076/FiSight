@@ -5,10 +5,10 @@ import { useRef } from 'react';
 import { Brain, Shield, TrendingUp, Users } from 'lucide-react';
 
 const stats = [
-  { icon: Users, label: 'Active planners', value: '12K+' },
-  { icon: Brain, label: 'AI insights generated', value: '2.4M+' },
-  { icon: TrendingUp, label: 'Avg. savings uplift', value: '18%' },
-  { icon: Shield, label: 'Uptime SLA', value: '99.9%' },
+  { icon: Users, label: 'Core features', value: '4' },
+  { icon: Brain, label: 'AI modules', value: '3' },
+  { icon: TrendingUp, label: 'Planning workflows', value: '6+' },
+  { icon: Shield, label: 'Project stage', value: 'Demo' },
 ];
 
 export function StatsSection() {

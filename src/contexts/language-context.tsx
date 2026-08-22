@@ -12,22 +12,19 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// translation object
 const translations = {
   en: {
-    // landing page stuff
-    'hero.titlePrefix': 'Navigate Your Financial Future with ',
-    'hero.titleHighlight': 'AI-Powered Clarity',
+    'hero.titlePrefix': 'Plan smarter with ',
+    'hero.titleHighlight': 'AI-guided money insights',
     'hero.titleSuffix': '',
-    'hero.title': 'Navigate Your Financial Future with AI-Powered Clarity',
-    'hero.subtitle': 'FiSight combines cutting-edge AI with your financial data to provide actionable insights, helping you make smarter decisions and achieve your goals faster.',
-    'hero.dashboard': 'Explore Your Dashboard',
+    'hero.title': 'Plan smarter with AI-guided money insights',
+    'hero.subtitle': 'FiSight is a student-built financial planning prototype that helps you explore budgets, spending patterns, investment ideas, and scenario planning with AI-assisted guidance.',
+    'hero.dashboard': 'Explore the Dashboard',
     'hero.learnMore': 'Learn More',
     
-    // about section
-    'about.title': 'Our Mission: Financial Empowerment for All',
-    'about.description': 'We believe that everyone deserves access to high-quality financial guidance. FiSight was born from a desire to democratize financial planning, using the power of artificial intelligence to make expert-level insights accessible and affordable.',
-    'about.privacy': "We're committed to your privacy and security. Your data is always encrypted, anonymized, and never shared.",
+    'about.title': 'A practical finance project with real learning value',
+    'about.description': 'FiSight was built as a final-year project to explore how AI can support everyday financial decisions, planning, and personal money management in a simple, usable interface.',
+    'about.privacy': "The project focuses on demo-friendly functionality and responsible handling of user inputs, without claiming to be a regulated financial service.",
     
     // Services
     'services.title': 'Our Services',
@@ -104,19 +101,17 @@ const translations = {
     'common.loading': 'Loading...',
   },
   hi: {
-    // Landing Page
-    'hero.titlePrefix': 'अपने वित्तीय भविष्य को ',
-    'hero.titleHighlight': 'AI की शक्ति',
-    'hero.titleSuffix': ' से संवारें',
-    'hero.title': 'अपने वित्तीय भविष्य को AI की शक्ति से संवारें',
-    'hero.subtitle': 'FiSight आपके वित्तीय डेटा को अत्याधुनिक AI तकनीक के साथ जोड़कर व्यावहारिक सुझाव देता है, जो आपको बेहतर निर्णय लेने और अपने लक्ष्यों को तेज़ी से हासिल करने में मदद करता है।',
-    'hero.dashboard': 'अपना डैशबोर्ड देखें',
+    'hero.titlePrefix': 'स्मार्ट योजनाएं बनाएं ',
+    'hero.titleHighlight': 'AI-आधारित वित्तीय सहायता',
+    'hero.titleSuffix': '',
+    'hero.title': 'स्मार्ट योजनाएं बनाएं AI-आधारित वित्तीय सहायता के साथ',
+    'hero.subtitle': 'FiSight एक छात्र-निर्मित वित्तीय योजना प्रोटोटाइप है जो आपको बजट, खर्च, निवेश विचार और AI-सहायता वाले परिदृश्य विश्लेषण में मदद करता है।',
+    'hero.dashboard': 'डैशबोर्ड देखें',
     'hero.learnMore': 'और जानें',
     
-    // About Section
-    'about.title': 'हमारा मिशन: सभी के लिए वित्तीय सशक्तिकरण',
-    'about.description': 'हमारा मानना है कि हर भारतीय को उच्च गुणवत्ता वाली वित्तीय सलाह का अधिकार है। FiSight का जन्म वित्तीय योजना को लोकतांत्रिक बनाने की इच्छा से हुआ है, जो कृत्रिम बुद्धिमत्ता की शक्ति का उपयोग करके विशेषज्ञ स्तर की जानकारी को सुलभ और किफायती बनाता है।',
-    'about.privacy': 'हम आपकी गोपनीयता और सुरक्षा के लिए प्रतिबद्ध हैं। आपका डेटा हमेशा एन्क्रिप्टेड, गुमनाम रहता है और कभी साझा नहीं किया जाता है।',
+    'about.title': 'व्यवहारिक वित्त प्रोजेक्ट जो सीखने का मूल्य देता है',
+    'about.description': 'FiSight को अंतिम वर्ष के प्रोजेक्ट के रूप में बनाया गया था ताकि यह समझा जा सके कि AI कैसे रोजमर्रा के वित्तीय निर्णय, योजना और व्यक्तिगत धन प्रबंधन में सहयोग कर सकता है।',
+    'about.privacy': 'यह प्रोजेक्ट डेमो-फ्रेंडली कार्यक्षमता और उपयोगकर्ता इनपुट की जिम्मेदार संभाल पर केंद्रित है, बिना किसी नियामक वित्तीय सेवा का दावा किए।',
     
     // Services
     'services.title': 'हमारी सेवाएं',

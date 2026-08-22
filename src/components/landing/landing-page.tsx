@@ -5,7 +5,6 @@ import { StatsSection } from './stats-section';
 import { HowItWorksSection } from './how-it-works-section';
 import { AvatarPreviewSection } from './avatar-preview-section';
 import { AboutSection } from './about-section';
-import { TestimonialsSection } from './testimonials-section';
 import { FaqSection } from './faq-section';
 import { CtaSection } from './cta-section';
 import { ContactSection } from './contact-section';
@@ -23,7 +22,6 @@ export function LandingPage() {
         <AvatarPreviewSection />
         <HowItWorksSection />
         <AboutSection />
-        <TestimonialsSection />
         <FaqSection />
         <CtaSection />
         <ContactSection />
